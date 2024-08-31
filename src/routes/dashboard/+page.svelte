@@ -1,13 +1,16 @@
 <script lang="ts">
     import {onMount} from "svelte";
-
+    import SvgQR from '@svelte-put/qr/svg/QR.svelte';
+    import { Circle } from 'svelte-loading-spinners';
     import { PUBLIC_BACK_END_HOST } from '$env/static/public'
     import {goto, invalidateAll} from "$app/navigation";
 
     let sending: boolean = false;
+    let loading: boolean = true;
 
     export let balance: string
     export let nanoAddress: string
+    export let username: string
     let withdrawAddress = "";
     let amount = "";
 
@@ -23,6 +26,8 @@
             localStorage.setItem("balance", data['balance']);
             nanoAddress = data['account']
             balance = data['balance'];
+            username = data['username'];
+            loading = false;
         } else {
             console.error(response);
             if (response.status === 401) {
@@ -75,7 +80,7 @@
 <style>
     .container {
         max-width: 400px;
-        margin: 20vh auto 0;
+        margin: 5vh auto 0;
         padding: 20px;
         border-radius: 8px;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -132,21 +137,55 @@
         cursor: not-allowed; /* Changes the cursor to indicate it's not clickable */
         opacity: 0.6; /* Reduces the opacity for a disabled effect */
     }
+
+    .username {
+        font-size: 1.2em;
+        color: #555;
+        margin-bottom: 10px;
+    }
+
+    .loading-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100px; /* Adjust height as needed */
+    }
+
+    .sending-container {
+        display: flex;
+        justify-content: center; /* Horizontally centers the spinner */
+        align-items: center;
+    }
 </style>
 
 <div class="container">
-    <div class="header">
-        <h2>Nano Tipper</h2>
-        <div class="balance">Balance: {balance} Nano</div>
-    </div>
+    {#if loading}
+        <div class="loading-container">
+            <Circle size="60" color="#253c69" unit="px" duration="1s" />
+        </div>
+    {:else}
+        <div class="header">
+            <h2>Nano Tipper</h2>
+            <div class="username">@{username}</div>
+            <div class="balance">Balance: {balance} Nano</div>
+        </div>
 
-    <div class="nano-address">
-        Your Nano Address:<br>
-        {nanoAddress}
-    </div>
+        <div class="nano-address">
+            Your Nano Address:<br>
+            {nanoAddress}
+        </div>
 
-    <input type="text" placeholder="Withdraw Amount" bind:value={amount} />
-    <input type="text" placeholder="Destination Nano Address" bind:value={withdrawAddress} />
+        <SvgQR data={`nano:${nanoAddress}`} />
 
-    <button disabled={sending} on:click={handleWithdraw}>Withdraw Nano</button>
+        <input type="text" placeholder="Withdraw Amount" bind:value={amount} />
+        <input type="text" placeholder="Destination Nano Address" bind:value={withdrawAddress} />
+
+        {#if !sending}
+            <button disabled={sending} on:click={handleWithdraw}>Withdraw Nano</button>
+        {:else}
+            <div class="sending-container">
+                <Circle color="#253c69" size="30" unit="px" duration="1s" />
+            </div>
+        {/if}
+    {/if}
 </div>

@@ -2,7 +2,7 @@
     import {onMount} from "svelte";
 
     import { PUBLIC_BACK_END_HOST } from '$env/static/public'
-    import {invalidateAll} from "$app/navigation";
+    import {goto, invalidateAll} from "$app/navigation";
 
     let sending: boolean = false;
 
@@ -28,7 +28,7 @@
             if (response.status === 401) {
                 localStorage.removeItem("account");
                 localStorage.removeItem("balance");
-                window.location.href = `${PUBLIC_BACK_END_HOST}/authenticate`;
+                await goto("/");
             }
         }
     }

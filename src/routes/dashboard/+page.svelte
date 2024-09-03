@@ -210,8 +210,6 @@
                 {nanoAddress}
             </div>
 
-            <h4 style="color: red;">Alpha Testing: YOU MIGHT LOSE YOUR NANO</h4>
-
             <SvgQR data={`nano:${nanoAddress}`}/>
         {:else}
             <input type="text" placeholder="Withdraw Amount" bind:value={amount}/>

@@ -105,7 +105,7 @@
     .nano-address {
         font-size: 0.9em;
         word-wrap: break-word;
-        background-color: #eef2f5;
+        background-color: #f9f9f9;
         padding: 10px;
         border-radius: 5px;
         margin-bottom: 20px;

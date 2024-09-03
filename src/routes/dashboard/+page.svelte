@@ -207,7 +207,6 @@
 
         {#if currentAction === "deposit"}
             <div class="nano-address">
-                Your Nano Address:<br>
                 {nanoAddress}
             </div>
 

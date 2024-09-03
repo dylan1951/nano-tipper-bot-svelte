@@ -165,7 +165,7 @@
         </div>
     {:else}
         <div class="header">
-            <h2>Nano Tipper</h2>
+            <h2>Nano Sprinkle</h2>
             <div class="username">@{username}</div>
             <div class="balance">Balance: {balance} Nano</div>
         </div>

@@ -62,9 +62,9 @@
 </style>
 
 <div class="container">
-    <h2>Connect to Nano Tipper Bot</h2>
+    <h2>Connect to Nano Sprinkle</h2>
     <div class="message">
-        Sign in with X to manage your @NanoTipperBot account
+        Sign in with X to manage your @NanoSprinkle account
     </div>
     <button class="sign-in-button" on:click={signIn}>
         <img alt="Sign in with Twitter" src="https://cdn.cms-twdigitalassets.com/content/dam/developer-twitter/auth-docs/sign-in-with-twitter-gray.png.twimg.1920.png">

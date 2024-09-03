@@ -1,8 +1,8 @@
 <script lang="ts">
     import {onMount} from "svelte";
     import SvgQR from '@svelte-put/qr/svg/QR.svelte';
-    import { Circle } from 'svelte-loading-spinners';
-    import { PUBLIC_BACK_END_HOST } from '$env/static/public'
+    import {Circle} from 'svelte-loading-spinners';
+    import {PUBLIC_BACK_END_HOST} from '$env/static/public'
     import {goto, invalidateAll} from "$app/navigation";
 
     let sending: boolean = false;
@@ -13,6 +13,8 @@
     export let username: string
     let withdrawAddress = "";
     let amount = "";
+
+    let currentAction = 'deposit';
 
     async function updateAccount() {
         const response = await fetch(`${PUBLIC_BACK_END_HOST}/account`, {
@@ -156,12 +158,36 @@
         justify-content: center; /* Horizontally centers the spinner */
         align-items: center;
     }
+
+    .tabs {
+        width: 100%;
+        display: flex;
+        box-sizing: border-box;
+        border-radius: 0.3rem;
+        padding-left: 20px;
+        padding-right: 20px;
+        margin-bottom: 20px;
+    }
+
+    .tab {
+        flex: 1;
+        text-align: center;
+        padding: 0.5rem 0;
+        cursor: pointer;
+        border-bottom: 3px solid #cccccc; /* inactive state */
+        font-size: 14pt;
+    }
+
+    .tab.active {
+        color: #6200ee;
+        border-bottom: 3px solid #253c69; /* active state */
+    }
 </style>
 
 <div class="container">
     {#if loading}
         <div class="loading-container">
-            <Circle size="60" color="#253c69" unit="px" duration="1s" />
+            <Circle size="60" color="#253c69" unit="px" duration="1s"/>
         </div>
     {:else}
         <div class="header">
@@ -170,24 +196,35 @@
             <div class="balance">Balance: {balance} Nano</div>
         </div>
 
-        <div class="nano-address">
-            Your Nano Address:<br>
-            {nanoAddress}
+        <div class="tabs">
+            <div class="tab {currentAction === 'deposit' ? 'active' : ''}" on:click={() => currentAction = 'deposit'}>
+                Deposit
+            </div>
+            <div class="tab {currentAction === 'withdraw' ? 'active' : ''}" on:click={() => currentAction = 'withdraw'}>
+                Withdraw
+            </div>
         </div>
 
-        <h4 style="color: red;">Alpha Testing: YOU MIGHT LOSE YOUR NANO</h4>
-
-        <SvgQR data={`nano:${nanoAddress}`} />
-
-        <input type="text" placeholder="Withdraw Amount" bind:value={amount} />
-        <input type="text" placeholder="Destination Nano Address" bind:value={withdrawAddress} />
-
-        {#if !sending}
-            <button disabled={sending} on:click={handleWithdraw}>Withdraw Nano</button>
-        {:else}
-            <div class="sending-container">
-                <Circle color="#253c69" size="30" unit="px" duration="1s" />
+        {#if currentAction === "deposit"}
+            <div class="nano-address">
+                Your Nano Address:<br>
+                {nanoAddress}
             </div>
+
+            <h4 style="color: red;">Alpha Testing: YOU MIGHT LOSE YOUR NANO</h4>
+
+            <SvgQR data={`nano:${nanoAddress}`}/>
+        {:else}
+            <input type="text" placeholder="Withdraw Amount" bind:value={amount}/>
+            <input type="text" placeholder="Destination Nano Address" bind:value={withdrawAddress}/>
+
+            {#if !sending}
+                <button disabled={sending} on:click={handleWithdraw}>Withdraw Nano</button>
+            {:else}
+                <div class="sending-container">
+                    <Circle color="#253c69" size="30" unit="px" duration="1s"/>
+                </div>
+            {/if}
         {/if}
     {/if}
 </div>

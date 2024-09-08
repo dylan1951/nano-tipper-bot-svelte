@@ -11,7 +11,7 @@
     async function fetchRateLimit() {
         try {
             const response = await fetch('https://api.bot.thenano.wiki/rate-limit', {
-                method: 'POST'
+                method: 'GET'
             });
 
             // Check if response is ok and can be parsed as JSON

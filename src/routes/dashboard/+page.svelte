@@ -197,6 +197,10 @@
             <div class="balance">{balance} Ӿ</div>
         </div>
 
+        <div>
+            <h3 style="color: red; text-align: center">You can make 5 tips/day maximum</h3>
+        </div>
+
         <div class="tabs">
             <div class="tab {currentAction === 'deposit' ? 'active' : ''}" on:click={() => currentAction = 'deposit'}>
                 Deposit

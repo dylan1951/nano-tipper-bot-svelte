@@ -145,7 +145,6 @@
         width: 100%;
         border-collapse: separate;
         border-spacing: 0;
-        background-color: white;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         border-radius: 8px;
         overflow: hidden;
@@ -165,6 +164,10 @@
 
     tr:nth-child(even) {
         background-color: #f2f2f2;
+    }
+
+    tr:nth-child(odd) {
+        background-color: #cccccc;
     }
 
     tr:hover {

@@ -1,9 +1,35 @@
 <script lang="ts">
-    import {onMount} from "svelte";
+    import {onDestroy, onMount, tick} from "svelte";
     import SvgQR from '@svelte-put/qr/svg/QR.svelte';
     import {Circle} from 'svelte-loading-spinners';
     import {PUBLIC_BACK_END_HOST} from '$env/static/public'
     import {goto, invalidateAll} from "$app/navigation";
+    import {subscribeToBlockConfirmations, websocketInstance} from "$lib/websockets";
+    import {type DotLottie, DotLottieSvelte} from '@lottiefiles/dotlottie-svelte';
+    import {convert, Unit} from "nanocurrency";
+
+    let dotLottie: DotLottie | null = null;
+
+    function onComplete() {
+        showCheckmark = false;
+    }
+
+    function setupListeners(dotLottieInstance) {
+        dotLottieInstance.addEventListener('complete', onComplete);
+    }
+
+    function removeListeners(dotLottieInstance) {
+        dotLottieInstance.removeEventListener('complete', onComplete);
+    }
+
+    onDestroy(() => {
+        if (dotLottie) {
+            removeListeners(dotLottie);
+        }
+        if (websocketInstance) {
+            websocketInstance.close();
+        }
+    });
 
     let sending: boolean = false;
     let loading: boolean = true;
@@ -13,6 +39,7 @@
     export let username: string
     let withdrawAddress = "";
     let amount = "";
+    let showCheckmark = false;
 
     let currentAction = 'deposit';
 
@@ -25,7 +52,6 @@
         if (response.ok) {
             const data = await response.json();
             localStorage.setItem("account", data['account']);
-            localStorage.setItem("balance", data['balance']);
             nanoAddress = data['account']
             balance = data['balance'];
             username = data['username'];
@@ -34,14 +60,24 @@
             console.error(response);
             if (response.status === 401) {
                 localStorage.removeItem("account");
-                localStorage.removeItem("balance");
                 await goto("/");
             }
         }
     }
 
+    function handleSend(amountRaw: string) {
+        const balanceRaw = convert(balance, {from: Unit.Nano, to: Unit.raw});
+        const newBalanceRaw = BigInt(balanceRaw) + BigInt(amountRaw);
+        balance = convert(newBalanceRaw.toString(), {from: Unit.raw, to: Unit.Nano});
+        showCheckmark = true;
+    }
+
     onMount(() => {
-        updateAccount()
+        updateAccount().then(() => {
+            if (nanoAddress) {
+                subscribeToBlockConfirmations(nanoAddress, handleSend);
+            }
+        })
     });
 
     async function handleWithdraw() {
@@ -211,7 +247,19 @@
                 {nanoAddress}
             </div>
 
-            <SvgQR data={`nano:${nanoAddress}`}/>
+            {#if showCheckmark}
+                <DotLottieSvelte
+                        src="https://lottie.host/de25f9a2-04dc-4120-8c8f-73ae1cad7f7c/EeMbUDjUlX.json"
+                        autoplay={true}
+                        dotLottieRefCallback={(ref) => {
+                            dotLottie = ref;
+                            setupListeners(dotLottie);
+                        }}
+                />
+            {:else}
+                <SvgQR data={`nano:${nanoAddress}`} logo="favicon.png" shape="circle"/>
+            {/if}
+
         {:else}
             <input type="text" placeholder="Withdraw Amount" bind:value={amount}/>
             <input type="text" placeholder="Destination Nano Address" bind:value={withdrawAddress}/>

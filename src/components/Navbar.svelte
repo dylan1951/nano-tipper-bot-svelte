@@ -1,5 +1,6 @@
 <script lang="ts">
     import { page } from '$app/stores';
+    import {PUBLIC_BACK_END_HOST} from "$env/static/public";
 
     let url: string;
     $: url = $page.url.pathname;
@@ -10,7 +11,7 @@
 
     async function fetchRateLimit() {
         try {
-            const response = await fetch('https://api.bot.thenano.wiki/rate-limit', {
+            const response = await fetch(`${PUBLIC_BACK_END_HOST}/rate-limit`, {
                 method: 'GET'
             });
 

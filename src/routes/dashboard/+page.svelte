@@ -42,6 +42,13 @@
     let showCheckmark = false;
 
     let currentAction = 'deposit';
+    let copied = false;
+
+    function copyAddress() {
+        navigator.clipboard.writeText(nanoAddress);
+        copied = true;
+        setTimeout(() => copied = false, 2000);
+    }
 
     async function updateAccount() {
         const response = await fetch(`${PUBLIC_BACK_END_HOST}/account`, {
@@ -117,118 +124,128 @@
 
 <style>
     .container {
+        width: 90%;
         max-width: 400px;
-        margin: 5vh auto 0;
         padding: 20px;
-        border-radius: 8px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        background-color: #f9f9f9;
-        font-family: Arial, sans-serif;
-        box-sizing: border-box; /* Ensure padding is included in width */
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        background: linear-gradient(145deg, #f8f6ff, #ffffff);
+        font-family: 'Roboto', sans-serif;
+        box-sizing: border-box;
+        margin: 5vh auto 2vh;
     }
 
     .header {
         text-align: center;
-        margin-bottom: 20px;
+        margin-bottom: 15px;
     }
 
     .balance {
-        font-size: 1.5em;
+        font-size: 2em;
         font-weight: bold;
-        margin-bottom: 10px;
+        color: #8e7cc3;
     }
 
     .nano-address {
         font-size: 0.9em;
-        overflow-wrap: break-word;
-        overflow: hidden;
-        background-color: #f9f9f9;
-        padding: 10px;
-        border-radius: 5px;
-        margin-bottom: 20px;
+        background-color: #efeaf7;
+        padding: 10px 40px 10px 10px; /* Increased right padding */
+        border-radius: 8px;
+        margin: 10px 0;
+        word-break: break-all;
+        position: relative;
     }
 
-    input, button {
+    .copy-icon {
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        cursor: pointer;
+        color: #8e7cc3;
+        background-color: #efeaf7; /* Match background color */
+        padding: 5px;
+        border-radius: 4px;
+    }
+
+    input {
         width: 100%;
         padding: 10px;
-        margin-bottom: 15px;
-        border-radius: 5px;
-        border: 1px solid #ccc;
-        box-sizing: border-box; /* Include padding in the element's width */
+        margin-bottom: 12px;
+        border-radius: 8px;
+        border: 1px solid #d0c9e4;
+        font-size: 1em;
+        box-sizing: border-box; /* Add this line */
     }
 
     button {
-        background-color: #00bfa5;
+        width: 100%;
+        padding: 10px;
+        background-color: #8e7cc3;
         color: white;
         font-size: 1em;
-        cursor: pointer;
         border: none;
+        border-radius: 8px;
+        cursor: pointer;
         transition: background-color 0.3s ease;
     }
 
     button:hover {
-        background-color: #009c87;
-    }
-
-    button:disabled {
-        background-color: #cccccc; /* A lighter gray to indicate the disabled state */
-        color: #666666; /* A darker gray color for the text */
-        cursor: not-allowed; /* Changes the cursor to indicate it's not clickable */
-        opacity: 0.6; /* Reduces the opacity for a disabled effect */
-    }
-
-    .username {
-        font-size: 1.2em;
-        color: #555;
-        margin-bottom: 10px;
-    }
-
-    .loading-container {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100px; /* Adjust height as needed */
-    }
-
-    .sending-container {
-        display: flex;
-        justify-content: center; /* Horizontally centers the spinner */
-        align-items: center;
+        background-color: #7b68b5;
     }
 
     .tabs {
-        width: 100%;
         display: flex;
-        box-sizing: border-box;
-        border-radius: 0.3rem;
-        padding-left: 20px;
-        padding-right: 20px;
-        margin-bottom: 20px;
+        margin-bottom: 15px;
+        border-radius: 8px;
+        overflow: hidden;
     }
 
     .tab {
         flex: 1;
         text-align: center;
-        padding: 0.5rem 0;
+        padding: 8px 0;
         cursor: pointer;
-        border-bottom: 3px solid #cccccc; /* inactive state */
-        font-size: 14pt;
+        background-color: #efeaf7;
+        transition: background-color 0.3s ease;
+        color: #253c69;
     }
 
     .tab.active {
-        color: #6200ee;
-        border-bottom: 3px solid #253c69; /* active state */
+        background-color: #8e7cc3;
+        color: white;
     }
+
+    .qr-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        height: auto;
+    }
+
+    .qr-container :global(svg) {
+        width: 100%;
+        height: 100%;
+    }
+
+    .loading-container, .sending-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        height: 100px; /* Adjust this value as needed */
+    }
+
 </style>
 
 <div class="container">
     {#if loading}
         <div class="loading-container">
-            <Circle size="60" color="#253c69" unit="px" duration="1s"/>
+            <Circle size="60" color="#8e7cc3" unit="px" duration="1s"/>
         </div>
     {:else}
         <div class="header">
-            <h2>Nano Sprinkle</h2>
             <div class="username">@{username}</div>
             <div class="balance">{balance} Ӿ</div>
         </div>
@@ -245,21 +262,25 @@
         {#if currentAction === "deposit"}
             <div class="nano-address">
                 {nanoAddress}
+                <span class="copy-icon" on:click={copyAddress}>
+                    {copied ? '✓' : '📋'}
+                </span>
             </div>
 
-            {#if showCheckmark}
-                <DotLottieSvelte
-                        src="https://lottie.host/de25f9a2-04dc-4120-8c8f-73ae1cad7f7c/EeMbUDjUlX.json"
-                        autoplay={true}
-                        dotLottieRefCallback={(ref) => {
+            <div class="qr-container">
+                {#if showCheckmark}
+                    <DotLottieSvelte
+                            src="https://lottie.host/de25f9a2-04dc-4120-8c8f-73ae1cad7f7c/EeMbUDjUlX.json"
+                            autoplay={true}
+                            dotLottieRefCallback={(ref) => {
                             dotLottie = ref;
                             setupListeners(dotLottie);
                         }}
-                />
-            {:else}
-                <SvgQR data={`nano:${nanoAddress}`} logo="favicon.png" shape="circle"/>
-            {/if}
-
+                    />
+                {:else}
+                    <SvgQR data={`nano:${nanoAddress}`} logo="favicon.png" shape="circle"/>
+                {/if}
+            </div>
         {:else}
             <input type="text" placeholder="Withdraw Amount" bind:value={amount}/>
             <input type="text" placeholder="Destination Nano Address" bind:value={withdrawAddress}/>
@@ -268,7 +289,7 @@
                 <button disabled={sending} on:click={handleWithdraw}>Withdraw Nano</button>
             {:else}
                 <div class="sending-container">
-                    <Circle color="#253c69" size="30" unit="px" duration="1s"/>
+                    <Circle color="#8e7cc3" size="30" unit="px" duration="1s"/>
                 </div>
             {/if}
         {/if}

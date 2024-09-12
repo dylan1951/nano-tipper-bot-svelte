@@ -24,7 +24,7 @@
                     remaining = data.day.remaining;
 
                     const resetDate = new Date(data.day.reset * 1000);
-                    localTime = resetDate.toLocaleTimeString();
+                    localTime = resetDate.toLocaleTimeString([], {hour: 'numeric', minute: '2-digit', hourCycle: 'h23'});
                 }
             }
         } catch (error) {
@@ -56,7 +56,7 @@
         {#if limit !== undefined && remaining !== undefined && localTime !== undefined}
             <div class="tips-progress" title="Tips used today">
                 <div class="progress-bar" style="width: {tipsPercentage}%"></div>
-                <span class="tips-text">{limit - remaining}/{limit}</span>
+                <span class="tips-text">{limit - remaining}/{limit} Tips - Resets {localTime}</span>
             </div>
         {/if}
         <a href="https://twitter.com/messages/compose?recipient_id=2529149599&ref_src=twsrc%5Etfw" class="twitter-dm-button" data-size="large" data-screen-name="dylan11951" data-show-count="false">Message @dylan11951</a>
@@ -108,29 +108,35 @@
     }
 
     .tips-progress {
-        width: 80px;
         height: 26px;
         background-color: rgba(142, 124, 195, 0.2);
         border-radius: 12px;
         overflow: hidden;
         position: relative;
+        display: inline-flex; /* Use flexbox for vertical and horizontal centering */
+        align-items: center;  /* Center items vertically */
+        justify-content: center; /* Center items horizontally */
+        padding: 0 10px; /* Optional: add padding around the text */
+        width: auto; /* Ensure the width adjusts to the content */
     }
 
     .progress-bar {
         height: 100%;
         background-color: #8e7cc3;
         transition: width 0.3s ease;
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 1;
     }
 
     .tips-text {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
+        z-index: 2; /* Ensure text stays above the progress bar */
         color: #f8f6ff;
         font-size: 0.8rem;
         font-weight: 500;
-        white-space: nowrap;
+        white-space: nowrap; /* Prevents text from wrapping */
     }
 
     .icon-link {
@@ -162,14 +168,6 @@
             width: 100%;
             justify-content: center;
             flex-wrap: wrap;
-        }
-
-        .tips-progress {
-            width: 80px;
-        }
-
-        .tips-text {
-            font-size: 0.7rem;
         }
     }
 </style>

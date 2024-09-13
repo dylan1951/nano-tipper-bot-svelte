@@ -35,6 +35,7 @@
     let loading: boolean = true;
 
     export let balance: string
+    export let receivable: string
     export let nanoAddress: string
     export let username: string
     let withdrawAddress = "";
@@ -62,6 +63,7 @@
             nanoAddress = data['account']
             balance = data['balance'];
             username = data['username'];
+            receivable = data['receivable'];
             loading = false;
         } else {
             console.error(response);
@@ -72,17 +74,57 @@
         }
     }
 
-    function handleSend(amountRaw: string) {
-        const balanceRaw = convert(balance, {from: Unit.Nano, to: Unit.raw});
-        const newBalanceRaw = BigInt(balanceRaw) + BigInt(amountRaw);
-        balance = convert(newBalanceRaw.toString(), {from: Unit.raw, to: Unit.Nano});
+    function receiveAll() {
+        fetch(`${PUBLIC_BACK_END_HOST}/receive-all`, {
+            method: 'POST',
+            credentials: 'include',
+        }).then(async response => {
+            if (response.ok) {
+                console.log("finished receiving all")
+                const data = await response.json();
+
+                if (data && data.balance) {
+                    console.log("new balance: " + data.balance);
+                    balance = data.balance;
+                    receivable = data.receivable;
+                }
+            }
+        });
+    }
+
+    function handleSend(hash: string) {
         showCheckmark = true;
+
+        fetch(`${PUBLIC_BACK_END_HOST}/receive`, {
+            method: 'POST',
+            credentials: 'include',
+            body: JSON.stringify({
+                block: hash,
+            }),
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        }).then(async response => {
+            if (response.ok) {
+                console.log("finished receiving all")
+                const data = await response.json();
+
+                if (data && data.balance) {
+                    console.log("new balance: " + data.balance);
+                    balance = data.balance;
+                    receivable = data.receivable;
+                }
+            }
+        });
     }
 
     onMount(() => {
         updateAccount().then(() => {
             if (nanoAddress) {
                 subscribeToBlockConfirmations(nanoAddress, handleSend);
+                if (parseFloat(receivable) > 0) {
+                    receiveAll()
+                }
             }
         })
     });

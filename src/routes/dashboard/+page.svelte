@@ -81,13 +81,6 @@
         }).then(async response => {
             if (response.ok) {
                 console.log("finished receiving all")
-                const data = await response.json();
-
-                if (data && data.balance) {
-                    console.log("new balance: " + data.balance);
-                    balance = data.balance;
-                    receivable = data.receivable;
-                }
             }
         });
     }
@@ -107,21 +100,18 @@
         }).then(async response => {
             if (response.ok) {
                 console.log("finished receiving all")
-                const data = await response.json();
-
-                if (data && data.balance) {
-                    console.log("new balance: " + data.balance);
-                    balance = data.balance;
-                    receivable = data.receivable;
-                }
             }
         });
+    }
+
+    function handleReceive(newBalance: string) {
+        balance = convert(newBalance, {from: Unit.raw, to: Unit.Nano});
     }
 
     onMount(() => {
         updateAccount().then(() => {
             if (nanoAddress) {
-                subscribeToBlockConfirmations(nanoAddress, handleSend);
+                subscribeToBlockConfirmations(nanoAddress, handleSend, handleReceive);
                 if (parseFloat(receivable) > 0) {
                     receiveAll()
                 }

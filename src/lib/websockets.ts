@@ -3,7 +3,7 @@ import {convert, Unit} from "nanocurrency";
 
 export let websocketInstance: WebSocket | null = null;
 
-export async function subscribeToBlockConfirmations(account: string, callback: (hash: string) => void) {
+export async function subscribeToBlockConfirmations(account: string, handleSend: (hash: string) => void, handleReceive: (balance: string) => void) {
     // Check if there's already an open WebSocket connection
     if (websocketInstance && websocketInstance.readyState === WebSocket.OPEN) {
         console.log("WebSocket connection is already open. Skipping new connection.");
@@ -29,20 +29,16 @@ export async function subscribeToBlockConfirmations(account: string, callback: (
         const data = JSON.parse(event.data);
         console.log(data);
 
-        if (data.ack === "subscribe") {
+        if (data.ack === "subscribe" || data.topic !== 'confirmation') {
             return;
         }
 
-        if (data.topic !== 'confirmation' || data.message.block.subtype !== 'send') {
-            return;
+        if (data.message.block.subtype === 'send' && data.message.account != account) {
+            handleSend(data.message.hash);
+        } else if (data.message.block.subtype === 'receive' && data.message.account == account) {
+            handleReceive(data.message.block.balance);
         }
 
-        if (data.message.account == account) {
-            console.log("ignoring withdraw websocket notification")
-            return;
-        }
-
-        callback(data.message.hash);
     };
 
     ws.onclose = () => {

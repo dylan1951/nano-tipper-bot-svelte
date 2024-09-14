@@ -66,6 +66,7 @@
     <div class="message">
         Sign in with X to manage your @NanoSprinkle account
     </div>
+    <h4>If you have issues linking your account on mobile, try another browser or try on desktop.</h4>
     <button class="sign-in-button" on:click={signIn}>
         <img alt="Sign in with Twitter" src="https://cdn.cms-twdigitalassets.com/content/dam/developer-twitter/auth-docs/sign-in-with-twitter-gray.png.twimg.1920.png">
     </button>

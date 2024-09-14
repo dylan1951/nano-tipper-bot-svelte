@@ -18,6 +18,9 @@
         fromUserId: string;
         toUserId: string;
         date: string;
+        tweetId: string;
+        claimed?: boolean;
+        refundHash?: string;
     };
 
     let tips: Tip[] = [];
@@ -54,9 +57,26 @@
     onMount(() => {
         fetchTips(1);
     });
+
+    function getTipStatus(tip: Tip): string {
+        if (tip.refundHash) return 'Refunded';
+        if (tip.claimed === true) return 'Claimed';
+        if (tip.claimed === false) return 'Unclaimed';
+        return 'Unknown';
+    }
+
+    function getStatusClass(status: string): string {
+        switch (status) {
+            case 'Claimed': return 'status-claimed';
+            case 'Unclaimed': return 'status-unclaimed';
+            case 'Refunded': return 'status-refunded';
+            default: return 'status-unknown';
+        }
+    }
 </script>
 
 <main>
+    <h2 style="color: white;">Unclaimed tips are refunded after 14 days</h2>
     {#if errorMessage}
         <p class="error">{errorMessage}</p>
     {:else if tips.length === 0 && !loading}
@@ -70,6 +90,7 @@
                     <th>To</th>
                     <th>Amount</th>
                     <th>Date</th>
+                    <th>Status</th>
                     <th>Transaction Hash</th>
                 </tr>
                 </thead>
@@ -96,6 +117,11 @@
                         </td>
                         <td data-label="Amount">{tip.amount} Ӿ</td>
                         <td data-label="Date">{new Date(tip.date).toLocaleString()}</td>
+                        <td data-label="Status">
+                            <span class={`status ${getStatusClass(getTipStatus(tip))}`}>
+                                {getTipStatus(tip)}
+                            </span>
+                        </td>
                         <td data-label="Hash">
                             <a href={`https://nanexplorer.com/all/block/${tip.hash}`} target="_blank" rel="noopener noreferrer">
                                 {tip.hash.substring(0, 18)}...
@@ -105,7 +131,6 @@
                 {/each}
                 </tbody>
             </table>
-
         </div>
         {#if hasMore}
             <button class="load-more" on:click={loadMore} disabled={loading}>
@@ -115,19 +140,13 @@
     {/if}
 </main>
 
-<style>
-    :global(body) {
-        font-family: 'Arial', sans-serif;
-        line-height: 1.6;
-        color: #333;
-        margin: 0;
-        padding: 0;
-    }
 
+<style>
     main {
         max-width: 1200px;
         padding: 20px;
         margin: 3vh auto 0;
+        text-align: center;
     }
 
     h1 {
@@ -139,39 +158,38 @@
     .table-container {
         width: 100%;
         overflow-x: auto;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     }
 
     table {
         width: 100%;
         border-collapse: separate;
         border-spacing: 0;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        border-radius: 8px;
-        overflow: hidden;
     }
 
     th, td {
-        padding: 15px;
+        padding: 12px 15px;
         text-align: left;
     }
 
     th {
-        background-color: #3498db;
+        background-color: #34495e;
         color: white;
         font-weight: bold;
         text-transform: uppercase;
     }
 
     tr:nth-child(even) {
-        background-color: #f2f2f2;
+        background-color: #f8f9fa;
     }
 
     tr:nth-child(odd) {
-        background-color: #cccccc;
+        background-color: #ffffff;
     }
 
     tr:hover {
-        background-color: #e0e0e0;
+        background-color: #e9ecef;
     }
 
     .error, .no-tips {
@@ -220,10 +238,42 @@
         text-decoration: underline;
     }
 
-    @media screen and (max-width: 800px) {
+    .status {
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-size: 0.8em;
+        font-weight: bold;
+        text-transform: uppercase;
+    }
+
+    .status-claimed {
+        background-color: #2ecc71;
+        color: white;
+    }
+
+    .status-unclaimed {
+        background-color: #f39c12;
+        color: white;
+    }
+
+    .status-refunded {
+        background-color: #e74c3c;
+        color: white;
+    }
+
+    .status-unknown {
+        background-color: #95a5a6;
+        color: white;
+    }
+
+    @media screen and (max-width: 1000px) {
+        .table-container {
+            box-shadow: none;
+            background-color: transparent;
+        }
+
         table {
             border: 0;
-            box-shadow: none;
         }
 
         table thead {
@@ -263,6 +313,11 @@
 
         table td:last-child {
             border-bottom: 0;
+        }
+
+        .status {
+            display: inline-block;
+            margin-top: 5px;
         }
     }
 </style>

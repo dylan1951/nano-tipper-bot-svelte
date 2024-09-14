@@ -105,6 +105,7 @@
     a:hover,
     .active {
         color: #8e7cc3;
+        font-weight: 500; /* Added this line */
     }
 
     .tips-progress {

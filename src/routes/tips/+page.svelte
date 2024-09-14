@@ -76,7 +76,7 @@
 </script>
 
 <main>
-    <h2 style="color: white;">Unclaimed tips are refunded after 14 days</h2>
+    <h2 style="color: white;">Unclaimed tips are refunded after 3 days</h2>
     {#if errorMessage}
         <p class="error">{errorMessage}</p>
     {:else if tips.length === 0 && !loading}

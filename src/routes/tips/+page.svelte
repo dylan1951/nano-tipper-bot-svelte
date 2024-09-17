@@ -91,7 +91,8 @@
                     <th>Amount</th>
                     <th>Date</th>
                     <th>Status</th>
-                    <th>Transaction Hash</th>
+                    <th>Transaction</th>
+                    <th>Post</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -116,7 +117,7 @@
                             {/if}
                         </td>
                         <td data-label="Amount">{tip.amount} Ӿ</td>
-                        <td data-label="Date">{new Date(tip.date).toLocaleString()}</td>
+                        <td data-label="Date">{new Date(tip.date).toLocaleString(undefined, { year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric' })}</td>
                         <td data-label="Status">
                             <span class={`status ${getStatusClass(getTipStatus(tip))}`}>
                                 {getTipStatus(tip)}
@@ -124,7 +125,14 @@
                         </td>
                         <td data-label="Hash">
                             <a href={`https://nanexplorer.com/all/block/${tip.hash}`} target="_blank" rel="noopener noreferrer">
-                                {tip.hash.substring(0, 18)}...
+                                {tip.hash.substring(0, 10)}...
+                            </a>
+                        </td>
+                        <td data-label="Post">
+                            <a href={`https://x.com/i/web/status/${tip.tweetId}`} target="_blank" rel="noopener noreferrer" class="tweet-link">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-twitter-x" viewBox="0 0 16 16">
+                                    <path d="M12.6.75h2.454l-5.36 6.142L16 15.25h-4.937l-3.867-5.07-4.425 5.07H.316l5.733-6.57L0 .75h5.063l3.495 4.633L12.601.75Zm-.86 13.028h1.36L4.323 2.145H2.865z"/>
+                                </svg>
                             </a>
                         </td>
                     </tr>
@@ -143,7 +151,7 @@
 
 <style>
     main {
-        max-width: 1200px;
+        max-width: 1100px;
         padding: 20px;
         margin: 3vh auto 0;
         text-align: center;
@@ -164,6 +172,7 @@
 
     table {
         width: 100%;
+        table-layout: auto; /* Adjust column widths based on content */
         border-collapse: separate;
         border-spacing: 0;
     }

@@ -24,6 +24,7 @@
 	"dependencies": {
 		"@lottiefiles/dotlottie-svelte": "^0.3.19",
 		"@svelte-put/qr": "^1.2.1",
+		"@sveltejs/adapter-vercel": "^5.5.2",
 		"canvas-confetti": "^1.9.3",
 		"nanocurrency": "^2.5.0",
 		"twitter-api-v2": "^1.17.2"
